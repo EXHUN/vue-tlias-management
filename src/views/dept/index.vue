@@ -26,28 +26,51 @@ const deptList = ref([])
 const dialogFormVisible = ref(false);
 const formTitle = ref('');
 
-const dept = ref({name:''});
+const dept = ref({ name: '' });
 
+// 新增部门
 const addDept = () => {
   dialogFormVisible.value = true;
   formTitle.value = '新增部门';
-  dept.value = {name:''};
+  dept.value = { name: '' };
+  // 重置表单的校验规则
+  if (deptFormRef.value) 
+  deptFormRef.value.resetFields()
 }
 
+// 保存部门
 const save = async () => {
-  const result = await addApi(dept.value);
-  if(result.code) { // 成功
-    // 提示信息
-    ElMessage.success("操作成功");
-    // 关闭对话框
-    dialogFormVisible.value = false;
-    // 查询最新数据
-    search();
-  }else { // 失败
-    // 提示信息
-    ElMessage.error(result.msg);
-  }
+  // 表单校验
+  if (!deptFormRef.value) return
+  deptFormRef.value.validate(async (valid) => { // valid表示是否校验通过:true 通过/ false 不通过
+    if (valid) {
+      const result = await addApi(dept.value);
+      if (result.code) { // 成功
+        // 提示信息
+        ElMessage.success("操作成功");
+        // 关闭对话框
+        dialogFormVisible.value = false;
+        // 查询最新数据
+        search();
+      } else { // 失败
+        // 提示信息
+        ElMessage.error(result.msg);
+      }
+    } else { // 不通过
+      ElMessage.error("表单校验不通过");
+    }
+  })
 }
+
+// 表单校验
+const rules = ref({
+  name: [
+    { required: true, message: '部门名称是必填项', trigger: 'blur' },
+    { min: 2, max: 10, message: '部门名称的长度应该在2-10位', trigger: 'blur' },
+  ]
+})
+
+const deptFormRef = ref();
 
 </script>
 
@@ -78,9 +101,9 @@ const save = async () => {
 
   <!-- Dialog对话框 -->
   <el-dialog v-model="dialogFormVisible" :title="formTitle" width="500">
-    <el-form :model="dept">
-      <el-form-item label="部门名称" label-width="80px">
-        <el-input v-model="dept.name"/>
+    <el-form :model="dept" :rules="rules" ref="deptFormRef">
+      <el-form-item label="部门名称" label-width="80px" prop="name">
+        <el-input v-model="dept.name" />
       </el-form-item>
     </el-form>
     <template #footer>
