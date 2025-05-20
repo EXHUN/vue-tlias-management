@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { queryAllApi, addApi } from "@/api/dept";
+import { queryAllApi, addApi, queryByIdApi, updateApi } from "@/api/dept";
 import { ElMessage } from 'element-plus';
 
 // 钩子函数
@@ -34,8 +34,8 @@ const addDept = () => {
   formTitle.value = '新增部门';
   dept.value = { name: '' };
   // 重置表单的校验规则
-  if (deptFormRef.value) 
-  deptFormRef.value.resetFields()
+  if (deptFormRef.value)
+    deptFormRef.value.resetFields()
 }
 
 // 保存部门
@@ -44,7 +44,14 @@ const save = async () => {
   if (!deptFormRef.value) return
   deptFormRef.value.validate(async (valid) => { // valid表示是否校验通过:true 通过/ false 不通过
     if (valid) {
-      const result = await addApi(dept.value);
+      let result;
+
+      if(dept.value.id) {// 修改
+        result = await updateApi(dept.value);
+      }else { // 新增
+        result = await addApi(dept.value);
+      }
+
       if (result.code) { // 成功
         // 提示信息
         ElMessage.success("操作成功");
@@ -72,6 +79,20 @@ const rules = ref({
 
 const deptFormRef = ref();
 
+// 编辑
+const edit = async (id) => {
+  formTitle.value = '修改部门';
+  // 重置表单的校验规则
+  if (deptFormRef.value)
+    deptFormRef.value.resetFields()
+  const result = await queryByIdApi(id);
+  if (result.code) {
+    dialogFormVisible.value = true;
+    dept.value = result.data;
+  }
+}
+
+
 </script>
 
 <template>
@@ -88,7 +109,7 @@ const deptFormRef = ref();
       <el-table-column prop="updateTime" label="最后操作时间" width="300" align="center" />
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button type="primary" size="small"><el-icon>
+          <el-button type="primary" size="small" @click="edit(scope.row.id)"><el-icon>
               <EditPen />
             </el-icon>编辑</el-button>
           <el-button type="danger" size="small"><el-icon>
