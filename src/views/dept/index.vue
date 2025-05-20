@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { queryAllApi, addApi, queryByIdApi, updateApi } from "@/api/dept";
-import { ElMessage } from 'element-plus';
+import { queryAllApi, addApi, queryByIdApi, updateApi, deleteByIdApi } from "@/api/dept";
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 // 钩子函数
 onMounted(() => {
@@ -46,9 +46,9 @@ const save = async () => {
     if (valid) {
       let result;
 
-      if(dept.value.id) {// 修改
+      if (dept.value.id) {// 修改
         result = await updateApi(dept.value);
-      }else { // 新增
+      } else { // 新增
         result = await addApi(dept.value);
       }
 
@@ -92,6 +92,24 @@ const edit = async (id) => {
   }
 }
 
+// 删除
+const delById = async (id) => {
+  // 弹出确认框
+  ElMessageBox.confirm(
+    '您确认删除该部门吗？','提示',
+    {confirmButtonText: '确定',cancelButtonText: '取消',type: 'warning'}
+  ).then(async () => { // 确认
+     const result = await deleteByIdApi(id);
+     if(result.code){// 删除成功
+      ElMessage.success('删除成功');
+      search();
+     }else{// 删除失败
+      ElMessage.error(result.msg);
+     }
+    }).catch(() => { // 取消
+      ElMessage.info('您已取消删除');
+    })
+}
 
 </script>
 
@@ -112,7 +130,7 @@ const edit = async (id) => {
           <el-button type="primary" size="small" @click="edit(scope.row.id)"><el-icon>
               <EditPen />
             </el-icon>编辑</el-button>
-          <el-button type="danger" size="small"><el-icon>
+          <el-button type="danger" size="small" @click="delById(scope.row.id)"><el-icon>
               <Delete />
             </el-icon>删除</el-button>
         </template>

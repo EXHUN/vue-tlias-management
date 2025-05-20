@@ -13,3 +13,4 @@ export const queryByIdApi = (id) => request.get(`/depts/${id}`);
 export const updateApi = (dept) => request.put('/depts',dept);
 
 // 删除
+export const deleteByIdApi = (id) => request.delete(`/depts?id=${id}`);
