@@ -1,8 +1,19 @@
 <script setup>
-  import { ref } from "vue";
+  import { ref,watch } from "vue";
 
   // 搜索表单对象
-  const searchEmp = ref({name:'',gender:'',date:[]})
+  const searchEmp = ref({name:'',gender:'',date:[],begin:'',end:''})
+
+  // 侦听searchEmp的date属性
+  watch(() => searchEmp.value.date, (newVal,oldVal) => {
+    if(newVal.length == 2) {
+      searchEmp.value.begin = newVal[0];
+      searchEmp.value.end = newVal[1];
+    }else {
+      searchEmp.value.begin = '';
+      searchEmp.value.end = '';
+    }
+  })
 
   // 查询员工列表
   const search = () => {
@@ -13,9 +24,28 @@
  
   // 清空员工列表
   const clear = () => {
-    searchEmp.value = {name:'',gender:'',date:[]},
+    searchEmp.value = {name:'',gender:'',date:[],begin:'',end:''},
     search();
   }
+
+  // watch侦听 -------演示--------
+    // 1.侦听一个响应式数据
+    // const a = ref('');
+    // watch(a,(newVal,oldVal) => {
+    //   console.log(`变化后的值：${newVal}, 变化前的值：${oldVal}`);
+    // })
+
+    // 2.侦听一个对象(侦听对象的全部属性)
+    // const user = ref({name:'',age:10});
+    // watch(user,(newVal,oldVal) => {
+    //   console.log(newVal);
+    // },{deep:true}) // deep:true表示深度侦听
+
+    // 3. 侦听对象中的某一个属性
+    //    const user = ref({name:'',age:10});
+    //    watch(() =>  user.value.age ,(newVal,oldVal) => {
+    //   console.log(`变化后的值：${newVal}, 变化前的值：${oldVal}`);
+    // })
 </script>
 
 <template>
@@ -23,6 +53,7 @@
 
   <!-- 搜索栏 -->
   <div class="container">
+    {{ searchEmp }}
     <el-form :inline="true" :model="searchEmp" class="demo-form-inline">
       <el-form-item label="姓名">
         <el-input v-model="searchEmp.name" placeholder="请输入员工姓名" clearable />
