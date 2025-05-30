@@ -1,6 +1,6 @@
 <script setup>
-import { ref, watch } from "vue";
-
+import { ref, watch, onMounted } from "vue";
+import { queryPageApi } from "@/api/emp";
 // 搜索表单对象
 const searchEmp = ref({ name: '', gender: '', date: [], begin: '', end: '' })
 
@@ -15,10 +15,19 @@ watch(() => searchEmp.value.date, (newVal, oldVal) => {
   }
 })
 
-// 查询员工列表
-const search = () => {
-  console.log(searchEmp.value);
+// 钩子函数
+onMounted(() => {
+  search();
+})
 
+// 查询员工列表
+const search = async () => {
+  const result = await queryPageApi(searchEmp.value.name,searchEmp.value.gender,
+                                    searchEmp.value.begin,searchEmp.value.end,currentPage.value,pageSize.value,);
+  if(result.code) {
+    empList.value = result.data.rows;
+    total.value = result.data.total;
+  }
 }
 
 
@@ -29,22 +38,7 @@ const clear = () => {
 }
 
 // 员工列表数据
-const empList = ref([
-  {
-    "id": 1,
-    "username": "jinyong",
-    "name": "金庸",
-    "gender": 1,
-    "image": "https://web-framework.oss-cn-hangzhou.aliyuncs.com/2022-09-02-00-27-53B.jpg",
-    "job": 2,
-    "salary": 8000,
-    "entryDate": "2015-01-01",
-    "deptId": 2,
-    "deptName": "教研部",
-    "createTime": "2022-09-01T23:06:30",
-    "updateTime": "2022-09-02T00:29:04"
-  }
-])
+const empList = ref([])
 
 
 // watch侦听 -------演示--------
@@ -75,12 +69,12 @@ const total = ref(0) // 总记录数
 
 // 每页展示记录数变化时触发
 const handleSizeChange = (val) => {
-  console.log(`每页展示 ${val} 条记录`);
+  search();
 }
 
 //页码变化是触发
 const handleCurrentChange = (val) => {
-  console.log(`当前页码: ${val}`)
+  search();
 }
 </script>
 
