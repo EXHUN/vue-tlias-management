@@ -1,6 +1,18 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import { queryPageApi } from "@/api/emp";
+import { queryAllApi as queryAllDeptApi} from "@/api/dept";
+import { ElMessage } from "element-plus";
+
+// 元数据
+//职位列表数据
+const jobs = ref([{ name: '班主任', value: 1 },{ name: '讲师', value: 2 },{ name: '学工主管', value: 3 },{ name: '教研主管', value: 4 },{ name: '咨询师', value: 5 },{ name: '其他', value: 6 }])
+//性别列表数据
+const genders = ref([{ name: '男', value: 1 }, { name: '女', value: 2 }])
+
+// 部门列表数据
+const depts = ref([]);
+
 // 搜索表单对象
 const searchEmp = ref({ name: '', gender: '', date: [], begin: '', end: '' })
 
@@ -17,8 +29,19 @@ watch(() => searchEmp.value.date, (newVal, oldVal) => {
 
 // 钩子函数
 onMounted(() => {
-  search();
+  search(); // 查询员工列表数据
+  queryAllDepts(); // 查询所有部门数据
 })
+
+// 查询所有部门数据
+const queryAllDepts = async () => {
+  const result = await queryAllDeptApi();
+  if(result.code) {
+    depts.value = result.data;
+  }
+}
+
+
 
 // 查询员工列表
 const search = async () => {
@@ -105,7 +128,7 @@ const dialogTitle = ref('新增员工')
 
 //文件上传
 // 图片上传成功后触发
-const handleAvatarSuccess = (response,uploadFile) => {
+const handleAvatarSuccess = (response) => {
   employee.value.image = response.data
 }
 // 文件上传之前触发
@@ -236,8 +259,7 @@ const beforeAvatarUpload = (rawFile) => {
           <el-col :span="12">
             <el-form-item label="性别">
               <el-select v-model="employee.gender" placeholder="请选择性别" style="width: 100%;">
-                <el-option label="男" value="1"></el-option>
-                <el-option label="女" value="2"></el-option>
+                <el-option v-for="g in genders" :key="g.value" :label="g.name" value="g.value"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -254,11 +276,7 @@ const beforeAvatarUpload = (rawFile) => {
           <el-col :span="12">
             <el-form-item label="职位">
               <el-select v-model="employee.job" placeholder="请选择职位" style="width: 100%;">
-                <el-option label="班主任" value="1"></el-option>
-                <el-option label="讲师" value="2"></el-option>
-                <el-option label="学工主管" value="3"></el-option>
-                <el-option label="教研主管" value="4"></el-option>
-                <el-option label="咨询师" value="5"></el-option>
+                <el-option v-for="j in jobs" :key="j.value" :label="j.name" value="j.value"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -274,8 +292,7 @@ const beforeAvatarUpload = (rawFile) => {
           <el-col :span="12">
             <el-form-item label="所属部门">
               <el-select v-model="employee.deptId" placeholder="请选择部门" style="width: 100%;">
-                <el-option label="研发部" value="1"></el-option>
-                <el-option label="市场部" value="2"></el-option>
+                <el-option v-for="d in depts" :key="d.id" :label="d.name" value="d.id"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
