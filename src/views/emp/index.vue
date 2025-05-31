@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { queryPageApi } from "@/api/emp";
+import { queryPageApi, addApi } from "@/api/emp";
 import { queryAllApi as queryAllDeptApi} from "@/api/dept";
 import { ElMessage } from "element-plus";
 
@@ -104,11 +104,26 @@ const handleCurrentChange = (val) => {
 const addEmp = () => {
   dialogVisible.value = true
   dialogTitle.value = '新增员工'
+  employee.value = {
+  username: '',
+  name: '',
+  gender: '',
+  phone: '',
+  job: '',
+  salary: '',
+  deptId: '',
+  entryDate: '',
+  image: '',
+  exprList: []
+  }
+
+  // 重置表单的校验规则
+  if (empFormRef.value)
+    empFormRef.value.resetFields();
 }
 
 
 //新增/修改表单
-const employeeFormRef = ref(null)
 const employee = ref({
   username: '',
   name: '',
@@ -162,6 +177,62 @@ const addExprItem = () => {
     })
   }
  },{ deep: true }) // 深度侦听
+
+// 保存员工
+const save = async () => {
+  // 表单校验
+  if (!empFormRef.value) return
+  empFormRef.value.validate(async (valid) => { // valid表示是否校验通过:true 通过/ false 不通过
+    if (valid) { // 通过
+      const result = await addApi(employee.value);
+      if(result.code){ // 成功
+        ElMessage.success("保存成功");
+        dialogVisible.value = false;
+        search();
+      }else { // 失败
+        ElMessage.error(result.msg);
+      }
+    } else { // 不通过
+      ElMessage.error("表单校验不通过");
+    }
+  })
+
+
+}
+
+// 表单引用
+const empFormRef = ref();
+
+
+//表单校验规则
+// 验证规则
+const rules = ref({
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 2, max: 20, message: '用户名长度应在2到20个字符之间', trigger: 'blur' }
+  ],
+  name: [
+    { required: true, message: '请输入姓名', trigger: 'blur' },
+    { min: 2, max: 10, message: '姓名长度应在2到10个字符之间', trigger: 'blur' }
+  ],
+  gender: [
+    { required: true, message: '请选择性别', trigger: 'change' }
+  ],
+
+  /**
+   *  正则表达式: / ...../ ; ^:以...开始; $:以...结束;
+   *  [3-9]：范围 3-9 之间
+   *  \d：数字，[0-9]
+   *  {9}：量词，表示前面的数字[0-9]出现9次
+   */
+
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号', trigger: 'blur' }
+  ]
+});
+
+
 </script>
 
 <template>
@@ -254,19 +325,18 @@ const addExprItem = () => {
 
 <!-- 新增员工/修改员工(对话框) -->
   <el-dialog v-model="dialogVisible" :title="dialogTitle">
-    {{ employee }}
-      <el-form ref="employeeFormRef" :model="employee" label-width="80px">
+      <el-form ref="empFormRef" :model="employee" :rules="rules" label-width="80px">
         <!-- 基本信息 -->
         <!-- 第一行 -->
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="用户名">
+            <el-form-item label="用户名" prop="username">
               <el-input v-model="employee.username" placeholder="请输入员工用户名，2-20个字"></el-input>
             </el-form-item>
           </el-col>
           
           <el-col :span="12">
-            <el-form-item label="姓名">
+            <el-form-item label="姓名" prop="name">
               <el-input v-model="employee.name" placeholder="请输入员工姓名，2-10个字"></el-input>
             </el-form-item>
           </el-col>
@@ -275,7 +345,7 @@ const addExprItem = () => {
         <!-- 第二行 -->
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="性别">
+            <el-form-item label="性别" prop="gender">
               <el-select v-model="employee.gender" placeholder="请选择性别" style="width: 100%;">
                 <el-option v-for="g in genders" :key="g.value" :label="g.name" :value="g.value"></el-option>
               </el-select>
@@ -283,7 +353,7 @@ const addExprItem = () => {
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="手机号">
+            <el-form-item label="手机号" prop="phone">
               <el-input v-model="employee.phone" placeholder="请输入员工手机号"></el-input>
             </el-form-item>
           </el-col>
@@ -382,7 +452,7 @@ const addExprItem = () => {
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="">保存</el-button>
+            <el-button type="primary" @click="save">保存</el-button>
           </span>
         </template>
 
