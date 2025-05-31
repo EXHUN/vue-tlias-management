@@ -15,3 +15,4 @@ export const queryInfoApi = (id) => request.get(`/emps/${id}`);
 export const updateApi = (emp) => request.put('/emps',emp);
 
 // 删除
+export const deleteApi = (ids) => request.delete(`/emps?ids=${ids}`);
