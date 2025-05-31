@@ -9,8 +9,14 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 import './assets/main.css'
 
-const app = createApp(App)
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
+const app = createApp(App)
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus, {locale: zhCn})
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
