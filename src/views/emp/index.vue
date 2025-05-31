@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { queryPageApi, addApi } from "@/api/emp";
+import { queryPageApi, addApi, queryInfoApi, updateApi } from "@/api/emp";
 import { queryAllApi as queryAllDeptApi} from "@/api/dept";
 import { ElMessage } from "element-plus";
 
@@ -184,7 +184,13 @@ const save = async () => {
   if (!empFormRef.value) return
   empFormRef.value.validate(async (valid) => { // valid表示是否校验通过:true 通过/ false 不通过
     if (valid) { // 通过
-      const result = await addApi(employee.value);
+
+      let result;
+      if(employee.value.id) { // 修改
+          result = await updateApi(employee.value);
+      }else {// 新增
+          result = await addApi(employee.value);
+      }
       if(result.code){ // 成功
         ElMessage.success("保存成功");
         dialogVisible.value = false;
@@ -231,6 +237,26 @@ const rules = ref({
     { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号', trigger: 'blur' }
   ]
 });
+
+// 编辑
+const edit = async(id) => {
+  const result = await queryInfoApi(id);
+  if(result.code) {
+    dialogVisible.value = true;
+    dialogTitle.value = '修改员工';
+    employee.value = result.data;
+
+    // 对工作经历进行处理
+    let exprList = employee.value.exprList;
+    if(exprList && exprList.length > 0) {
+      exprList.forEach(expr => {
+        expr.exprDate = [expr.begin, expr.end]; // 将begin和end合并为exprDate
+      })
+    } else {
+      employee.value.exprList = [{company: '', job: '', begin: '', end: '',exprDate:[]}];
+    }
+  } 
+}
 
 
 </script>
@@ -297,7 +323,7 @@ const rules = ref({
       <el-table-column prop="updateTime" label="最后操作时间" width="200" align="center" />
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button type="primary" size="small" @click=""><el-icon>
+          <el-button type="primary" size="small" @click="edit(scope.row.id)"><el-icon>
               <EditPen />
             </el-icon>编辑</el-button>
           <el-button type="danger" size="small" @click=""><el-icon>

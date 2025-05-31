@@ -9,9 +9,9 @@ export const addApi = (emp) => request.post('/emps',emp);
 
 
 // 根据ID查询部门
-
+export const queryInfoApi = (id) => request.get(`/emps/${id}`);
 
 // 修改 (相应数据是json 所以要传入一个对象)
-
+export const updateApi = (emp) => request.put('/emps',emp);
 
 // 删除
