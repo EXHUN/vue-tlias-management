@@ -3,6 +3,12 @@ import { ref, watch, onMounted } from "vue";
 import { queryPageApi, addApi, queryInfoApi, updateApi, deleteApi } from "@/api/emp";
 import { queryAllApi as queryAllDeptApi} from "@/api/dept";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useUserStore } from '@/store/user'
+import { computed } from 'vue'
+
+// token
+const userStore = useUserStore()
+const token = computed(() => userStore.loginUser?.token || '')
 
 // 元数据
 //职位列表数据
@@ -32,6 +38,7 @@ onMounted(() => {
   search(); // 查询员工列表数据
   queryAllDepts(); // 查询所有部门数据
 })
+
 
 // 查询所有部门数据
 const queryAllDepts = async () => {
@@ -473,6 +480,7 @@ const deleteByIds = () => {
               <el-upload
                 class="avatar-uploader"
                 action="/api/upload"
+                :headers="{'token': token}"
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
                 :before-upload="beforeAvatarUpload"
