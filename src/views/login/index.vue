@@ -13,7 +13,6 @@
   // 登录
   const login = async () => {
     const result = await loginApi(loginForm.value);
-    console.log('登录返回result:', result);
     if(result.code) { // 登录成功
       // 1.提示信息
       ElMessage.success("登录成功");
