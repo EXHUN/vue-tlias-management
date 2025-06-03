@@ -13,17 +13,20 @@
   // 登录
   const login = async () => {
     const result = await loginApi(loginForm.value);
+    console.log('登录返回result:', result);
     if(result.code) { // 登录成功
       // 1.提示信息
-        ElMessage.success("登录成功");
-      
+      ElMessage.success("登录成功");
       // 2.存储用户信息
       userStore.loginUser = result.data;
+      // 2.1 存储token到localStorage（关键修正）
+      localStorage.setItem("token", result.data.token);
       // 3.跳转页面 - 首页
-        router.push('/');
+      router.push('/');
     }else { //登录失败
       ElMessage.error(result.msg);
     }
+    
   }
 
 
