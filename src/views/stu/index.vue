@@ -122,7 +122,7 @@ const handleBatchDelete = () => {
 
 // 弹窗表单
 const dialogVisible = ref(false);
-const dialogTitle = ref("添加学员");
+const dialogTitle = ref("新增学员");
 const formRef = ref();
 const formData = reactive({
   id: null,
@@ -182,7 +182,7 @@ const rules = {
 
 // 新增学员
 const handleAdd = () => {
-  dialogTitle.value = "添加学员";
+  dialogTitle.value = "新增学员";
   Object.assign(formData, {
     id: null,
     name: "",
@@ -294,14 +294,14 @@ onMounted(() => {
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button @click="handleClear">清空</el-button>
+        <el-button type="info" @click="handleClear">清空</el-button>
       </el-form-item>
     </el-form>
   </div>
 
   <!-- 功能按钮 -->
   <div class="container">
-    <el-button type="primary" @click="handleAdd">添加学员</el-button>
+    <el-button type="primary" @click="handleAdd">新增学员</el-button>
     <el-button type="danger" @click="handleBatchDelete">批量删除</el-button>
   </div>
 

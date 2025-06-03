@@ -240,7 +240,7 @@ const handleDialogClose = () => {
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button @click="handleClear">清空</el-button>
+        <el-button type="info" @click="handleClear">清空</el-button>
       </el-form-item>
     </el-form>
   </div>
