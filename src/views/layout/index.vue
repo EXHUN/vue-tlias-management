@@ -79,7 +79,7 @@ const handlePwdSubmit = async () => {
     <el-container>
       <!-- Header 区域 -->
       <el-header class="header">
-        <span class="title">Tlias智能学习辅助系统</span>
+        <span class="title">Belugu智能学习辅助系统</span>
         <span class="right_tool">
           <a href="javascript:;" @click="handleOpenPwdDialog">
             <el-icon>
